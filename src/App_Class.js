@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useLayoutEffect } from "react";
+import React from 'react';
 import { BrowserRouter, Route, Link, Routes, Navigate } from 'react-router-dom';
 import { createBrowserHistory  } from "history";
 import HomePage from './components/home/HomePage';
@@ -16,70 +16,92 @@ import UserService from './services/user.service';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUserPlus, faSignInAlt, faHome, faSignOutAlt, faUserShield} from '@fortawesome/free-solid-svg-icons';
 
-function App() {
- 
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+class App extends React.Component {
+  constructor(props) {
+    super(props);
 
-  useEffect(() => {
-    UserService.currentUser.subscribe(data => {
-      setCurrentUser(data);
-      setIsAdmin(data && data.role === Role.ADMIN)
+    this.state = {
+      history: createBrowserHistory(),
+      currentUser: null,
+      isAdmin: false,
+      errorMessage: '',
+      currentLocation: window.location.pathname,
+    }
+  }
+
+  componentWillMount() {
+    this.unlisten = this.state.history.listen((location, action) => {
+      this.setState({currentLocation: location.pathname});
     })
+  }
 
-  });
+  componentWillUnmount() {
+    this.unlisten();
+  }
 
-  const logout = () => {
+  componentDidMount() {
+    UserService.currentUser.subscribe(data => {
+      this.setState({
+        currentUser: data,
+        isAdmin: data && data.role === Role.ADMIN
+      })
+    })
+  }
+
+  logout() {
     UserService.logout()
       .then(
           data => {
-            //navigate('/home')
-            console.log("test");
+            this.state.history.push('/home')
           },
           error => {
-            setErrorMessage("Unexpected error occured");
+            this.setState({
+              errorMessage: "Unexpected error occured"
+            })
           }
 
       );
   }
   
-  return (
+  render() {
+    const { currentUser, isAdmin, history, currentLocation } = this.state;
+
+    return (
       <div>
-      <BrowserRouter>
+      <BrowserRouter history={history}>
      
         
         <div>
-        {currentUser && 
+        {this.state.currentUser && 
           <nav className='navbar navbar-expand navbar-dark bg-dark'>
             <div className='container-fluid'>
             <a className='navbar-brand' href="https://reactjs.org">
                 Apple App
             </a>
             <div className='navbar-nav me-auto'>
-                <Link to="/home" className='nav-item nav-link'><FontAwesomeIcon icon={faHome}/>Home</Link>
-                {isAdmin && <Link to="/admin" className='nav-item nav-link'><FontAwesomeIcon icon={faUserShield}/>Admin</Link>}
+                <Link to="/home" className={currentLocation === "/home" ? 'nav-item nav-link active' : 'nav-item nav-link' }><FontAwesomeIcon icon={faHome}/>Home</Link>
+                {isAdmin && <Link to="/admin" className={currentLocation === "/admin" ? 'nav-item nav-link active' : 'nav-item nav-link' }><FontAwesomeIcon icon={faUserShield}/>Admin</Link>}
             </div>
             <div className='navbar-nav ms-auto'>
-                <Link to="/profile" className='nav-item nav-link'><FontAwesomeIcon icon={faUser}/>{currentUser.name}</Link>
-                <a href="#" onClick={logout} className='nav-item nav-link'><FontAwesomeIcon icon={faSignOutAlt}/>Logout</a>
+                <Link to="/profile" className={currentLocation === "/profile" ? 'nav-item nav-link active' : 'nav-item nav-link' }><FontAwesomeIcon icon={faUser}/>{currentUser.name}</Link>
+                <a href="#" onClick= {()=> this.logout()} className='nav-item nav-link'><FontAwesomeIcon icon={faSignOutAlt}/>Logout</a>
             </div>
             </div>
           </nav>
         }
 
-      {!currentUser && 
+      {!this.state.currentUser && 
           <nav className='navbar navbar-expand navbar-dark bg-dark'>
             <div className='container-fluid'>
               <a className='navbar-brand' href="https://reactjs.org">
                   Public Apple App
               </a>
               <div className='navbar-nav me-auto'>
-                  <Link to="/home" className='nav-item nav-link'><FontAwesomeIcon icon={faHome}/>Home</Link>
+                  <Link to="/home" className={currentLocation === "/home" ? 'nav-item nav-link active' : 'nav-item nav-link' }><FontAwesomeIcon icon={faHome}/>Home</Link>
               </div>
               <div className='navbar-nav ms-auto'>
-                  <Link to="/register" className='nav-item nav-link'><FontAwesomeIcon icon={faUserPlus}/>Register</Link>
-                  <Link to="/login" className='nav-item nav-link'><FontAwesomeIcon icon={faSignInAlt}/>Login</Link>
+                  <Link to="/register" className={currentLocation === "/register" ? 'nav-item nav-link active' : 'nav-item nav-link' }><FontAwesomeIcon icon={faUserPlus}/>Register</Link>
+                  <Link to="/login" className={currentLocation === "/login" ? 'nav-item nav-link active' : 'nav-item nav-link' }><FontAwesomeIcon icon={faSignInAlt}/>Login</Link>
               </div>
             </div>
           </nav>
@@ -119,7 +141,7 @@ function App() {
       </BrowserRouter>
       </div>
     );
-  
+  }
 }
 
 export default App;
