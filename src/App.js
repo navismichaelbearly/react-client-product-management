@@ -1,7 +1,6 @@
 import './App.css';
 import { useState, useEffect, useLayoutEffect } from "react";
-import { BrowserRouter, Route, Link, Routes, Navigate } from 'react-router-dom';
-import { createBrowserHistory  } from "history";
+import { Route, Link, Routes, Navigate, useNavigate } from 'react-router-dom';
 import HomePage from './components/home/HomePage';
 import LoginPage from './components/login/LoginPage';
 import RegisterPage from './components/register/RegisterPage';
@@ -17,7 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUserPlus, faSignInAlt, faHome, faSignOutAlt, faUserShield} from '@fortawesome/free-solid-svg-icons';
 
 function App() {
- 
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -34,7 +33,7 @@ function App() {
     UserService.logout()
       .then(
           data => {
-            //navigate('/home')
+            navigate('/home')
             console.log("test");
           },
           error => {
@@ -46,7 +45,7 @@ function App() {
   
   return (
       <div>
-      <BrowserRouter>
+     
      
         
         <div>
@@ -116,7 +115,7 @@ function App() {
           </div>
         
      
-      </BrowserRouter>
+     
       </div>
     );
   
