@@ -1,63 +1,51 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { Modal } from 'bootstrap';
 import AdminService from '../../services/admin.service';
 import UserService from '../../services/user.service';
-import $ from 'jquery';
+import './DeleteModal.css';
 
-class DeleteModal extends React.Component {
-    constructor(props) {
-        super(props);
+const DeleteModal = ({selectedUser,handleDeleteModalCloseClick, onDeleteChildUpdate}) =>  {
+    const childDeleteModal = useRef();
+    const [user,setUser] = useState(selectedUser);
+    const [modal, setModal] = useState([]);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [loading,setLoading] = useState(false);
 
-        this.state = {
-            user: this.props.user,
-            errorMessage: '',
-        }
-    }
+    useEffect(() => {
+        const modalEle = childDeleteModal.current;
+        const bsModal = new Modal(modalEle, {keyboard: false});
+        setModal(bsModal);
+        bsModal.show();
+        handleDeleteModalCloseClick();
+    },[]);
 
-    componentDidMount() {
-        const { handleDeleteModalCloseClick } = this.props;
-        $(this.modal).modal('show');
-        $(this.modal).on('hidden.bs.modal', handleDeleteModalCloseClick);
-    }
-
-    handleCloseClick() {
-        const { handleDeleteModalCloseClick } = this.props;
-        $(this.modal).modal('hide');
+    const handleCloseClick = () => {
+        modal.hide();
         handleDeleteModalCloseClick();
     }
 
-    deleteUser(e) {
+    const deleteUser = (e) => {
         e.preventDefault();
-        const { user } = this.state;
         AdminService.deleteUser(user).then(
             data => {
                 //call parent props
-                this.props.onDeleteChildUpdate(user, true);
-                this.handleCloseClick();
+                onDeleteChildUpdate(user, true);
+                handleCloseClick();
             },
             error => {
                 //call parent props
-                this.props.onDeleteChildUpdate(null, false);
-                this.setState({
-                    errorMessage: "Unexpected error occured.",
-                    loading: false,
-                })
+                onDeleteChildUpdate(null, false);
+                setErrorMessage("Unexpected error occured.");
+                setLoading(false);
             }
         );
     }
 
-    render() {
-        const { user, errorMessage } = this.state;
         return (
             <div>
                 {user &&
-                    <div className="modal fade" 
-                            id="deleteModal" 
-                            ref={modal => this.modal = modal}
-                            tabIndex="-1"
-                            role="dialog"
-                            aria-labelledby="deleteModalLabel"
-                            aria-hidden="true">
-                        <div className="modal-dialog" role="document">
+                        <div  ref={childDeleteModal} className="modal fade" id="deleteModal" tabIndex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div className="modal-dialog" role="document" >
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h5 className="modal-title">Confirmation</h5>
@@ -74,12 +62,12 @@ class DeleteModal extends React.Component {
                                     <button type="button" 
                                             className="btn btn-secondary" 
                                             data-dismiss="modal"
-                                            onClick={() => this.handleCloseClick()}>
+                                            onClick={() => handleCloseClick()}>
                                         Cancel
                                     </button>
                                     <button type="button" 
                                             className="btn btn-danger" 
-                                            onClick={() => this.deleteUser()}>
+                                            onClick={() => deleteUser()}>
                                         I'm Sure
                                     </button>
                                 </div>
@@ -89,7 +77,7 @@ class DeleteModal extends React.Component {
                 }
             </div>
         );
-    }
+    
 }
 
 export default DeleteModal;

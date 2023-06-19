@@ -48,11 +48,11 @@ function App() {
      
      
         
-        <div>
+     <nav className='navbar navbar-expand navbar-dark bg-dark'>
         {currentUser && 
-          <nav className='navbar navbar-expand navbar-dark bg-dark'>
-            <div className='container-fluid'>
-            <a className='navbar-brand' href="https://reactjs.org">
+          
+            <div className='container'>
+            <a className='navbar-brand' href="/">
                 Apple App
             </a>
             <div className='navbar-nav me-auto'>
@@ -64,12 +64,12 @@ function App() {
                 <a href="#" onClick={logout} className='nav-item nav-link'><FontAwesomeIcon icon={faSignOutAlt}/>Logout</a>
             </div>
             </div>
-          </nav>
+         
         }
 
       {!currentUser && 
-          <nav className='navbar navbar-expand navbar-dark bg-dark'>
-            <div className='container-fluid'>
+          
+            <div className='container'>
               <a className='navbar-brand' href="https://reactjs.org">
                   Public Apple App
               </a>
@@ -81,10 +81,10 @@ function App() {
                   <Link to="/login" className='nav-item nav-link'><FontAwesomeIcon icon={faSignInAlt}/>Login</Link>
               </div>
             </div>
-          </nav>
+          
         }
 
-        </div>
+        </nav>
         
           <div className='container'>
               <Routes>

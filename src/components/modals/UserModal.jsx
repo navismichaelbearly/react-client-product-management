@@ -3,6 +3,7 @@ import { Modal } from 'bootstrap';
 import AdminService from "../../services/admin.service";
 import UserService from "../../services/user.service";
 import $ from 'jquery';
+import './UserModal.css';
 
 
 const UserModal = ({ handleModalCloseClick, onChildUpdate, selectedUser}) => {
@@ -16,7 +17,7 @@ const UserModal = ({ handleModalCloseClick, onChildUpdate, selectedUser}) => {
 
     useEffect(() => {
         const modalEle = childUserModal.current;
-        const bsModal = new Modal(modalEle, { backdrop: 'static',keyboard: false})
+        const bsModal = new Modal(modalEle, { keyboard: false});
         setModal(bsModal)
         bsModal.show()
     },[])
@@ -102,21 +103,21 @@ const UserModal = ({ handleModalCloseClick, onChildUpdate, selectedUser}) => {
                                             }
                                             <div className={'form-group' + (submitted && user.name ? 'has-error' : '')}>
                                                 <label htmlFor="name">Full Name</label>
-                                                <input type="text" className="form-control" name="name"   onChange={e => user.name = e.target.value}  />
+                                                <input type="text" className="form-control" name="name" value={selectedUser.name}   onChange={e => user.name = e.target.value}  />
                                                 { submitted && !user.name &&
                                                     <div className="alert alert-danger" role="alert">Full name is required.</div>
                                                 }
                                             </div>
                                             <div className={'form-group' + (submitted && user.username ? 'has-error' : '')}>
                                                 <label htmlFor="username">Username</label>
-                                                <input type="text" className="form-control" name="username"  onChange={e => user.username = e.target.value} />
+                                                <input type="text" className="form-control" name="username"  value={selectedUser.username}  onChange={e => user.username = e.target.value} />
                                                 { submitted && !user.username &&
                                                     <div className="alert alert-danger" role="alert">Username is required.</div>
                                                 }
                                             </div>
                                             <div className={'form-group' + (submitted && user.password ? 'has-error' : '')}>
                                                 <label htmlFor="passowrd">Password</label>
-                                                <input readOnly={user.id!==-1} type="password" className="form-control" name="password"  onChange={e => user.password = e.target.value} />
+                                                <input type="password" className="form-control" name="password" value={selectedUser.password}  onChange={e => user.password = e.target.value} />
                                             </div>   
                                             <div className={'form-group' + (submitted && user.role ? 'has-error' : '')}>
                                                 <label htmlFor="role">User role</label>

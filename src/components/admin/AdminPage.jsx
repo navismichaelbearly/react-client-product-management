@@ -40,7 +40,7 @@ const AdminPage = () => {
 
     const deleteUserRequest = (user) => {
         setSelectedUser(user);
-        setShowModal(true);
+        setShowDeleteModal(true);
     }
 
     const handleModalCloseClick = () => {
@@ -114,7 +114,7 @@ const AdminPage = () => {
                                     <h3 className='panel-title'>All Users</h3>
                                 </div>
                                 <div className='col col-xs-6 text-right'>
-                                    <button type='button' className='btn btn-primary' data-bs-target="#userModal" onClick={() => createUserRequest()}>Create New User</button>
+                                    <button type='button' className='btn btn-primary' data-bs-target="#userModal"  onClick={() => createUserRequest()}>Create New User</button>
                                 </div>
                             </div>
                         </div>
