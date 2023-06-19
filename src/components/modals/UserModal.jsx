@@ -1,167 +1,152 @@
-import React from "react";
+import { useEffect, useState, useRef} from "react";
+import { Modal } from 'bootstrap';
 import AdminService from "../../services/admin.service";
 import UserService from "../../services/user.service";
 import $ from 'jquery';
 
 
-class UserModal extends React.Component {
+const UserModal = ({ handleModalCloseClick, onChildUpdate, selectedUser}) => {
+    
+    const childUserModal = useRef();
+    const [user,setUser] = useState(selectedUser);
+    const [modal, setModal] = useState([]);
+    const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage]  = useState('');
 
-    constructor(props) {
-        super(props);
+    useEffect(() => {
+        const modal = new Modal(childUserModal.current, {keyboard: false})
+        setModal(modal)
+        modal.show()
+    },[])
 
-        this.state = {
-            user: this.props.user,
-            submitted: false,
-            loading: false,
-            errorMessage: ''
-        };
-    }
-
-    componentDidMount() {
-        const { handleModalCloseClick } = this.props;
-        $(this.modal).modal('show');
-        $(this.modal).on('hidden.bs.modal', handleModalCloseClick)
-    }
-
-    handleCloseClick() {
-        const { handleModalCloseClick } = this.props;
-        $(this.modal).modal('hide');
+   const handleCloseClick = () => {
+        modal.hide();
         handleModalCloseClick();
     }
 
-    handleChange(event) {
+    const handleChange = (event) => {
         var { name, value } = event.target;
-        var user = this.state.user;
         user[name] = value;
-        this.setState({user: user})
     }
 
-    handleSubmit(e) {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        this.setState({submitted: true})
-        const { user } = this.state;
-
+        setSubmitted(true);
+        
         if(!(user.username && user.password && user.name)) {
             return;
         }
 
-        this.setState({loading: true });
+        setLoading(true);
         if(user.id !== -1 ) {
-            this.updateUser(user);
+            updateUser(user);
         } else {
-            this.createUser(user);
+            createUser(user);
         }
     }
 
-    createUser(user) {
+    const createUser = (user) => {
         UserService.register(user)
             .then(
                 data => {
                     //call props from parent
-                    this.props.onChildUpdate(data.data, true, false);
-                    this.handleCloseClick();
+                    onChildUpdate(data.data, true, false);
+                    handleCloseClick();
                 },
                 error => {
-                    this.props.onChildUpdate(null, false,false);
-                    this.setState({
-                        errorMessage: "Unexpected error occured.",
-                        loading: false
-                    })
+                    onChildUpdate(null, false,false);
+                    setErrorMessage("Unexpected error occured");
+                    setLoading(false);
                 }
             );
     }
 
-    updateUser(user) {
-        AdminService.updateUser(user)
+    const updateUser = (currentUser) => {
+        AdminService.updateUser(currentUser)
             .then(
                 data => {
                     //call props from parent
-                    this.props.onChildUpdate(data.data, true, true);
-                    this.handleCloseClick();
+                    onChildUpdate(data.data, true, true);
+                    handleCloseClick();
                 },
                 error => {
-                    this.props.onChildUpdate(null, false,false);
-                    this.setState({
-                        errorMessage: "Unexpected error occured.",
-                        loading: false
-                    })
+                    onChildUpdate(null, false,false);
+                    setErrorMessage("Unexpected error occured");
+                    setLoading(false);
                 }
             );
     }
 
-    render() {
-        const { user, submitted, loading, errorMessage } = this.state;
+
 
         return (
             <div>
                 {user &&
-                    <div className="modal fade" id="userModal" tabIndex="-1" ref={modal => this.modal = modal} role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <form name="form-user-update" onSubmit= { e => this.handleSubmit(e)}>
-                                    <div className="modal-header">
-                                        <h5 className="modal-title">User Details</h5>
-                                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times</span>
-                                        </button>
-                                    </div>
+                    <div className="py-2">
+                        <div  ref={childUserModal} className="modal fade" id="userModal" tabIndex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+                            <div className="modal-dialog" role="document">
+                                <div className="modal-content">
+                                    <form name="form-user-update" onSubmit= { e => handleSubmit(e)}>
+                                        <div className="modal-header">
+                                            <h5 className="modal-title">User Details</h5>
+                                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
 
-                                    <div className="modal-body">
-                                        { errorMessage &&
-                                            <div className="alert alert-danger" role="alert">
-                                                <strong>Error! </strong> {errorMessage}
+                                        <div className="modal-body">
+                                            { errorMessage &&
+                                                <div className="alert alert-danger" role="alert">
+                                                    <strong>Error! </strong> {errorMessage}
+                                                </div>
+                                            }
+                                            <div className={'form-group' + (submitted && user.name ? 'has-error' : '')}>
+                                                <label htmlFor="name">Full Name</label>
+                                                <input type="text" className="form-control" name="name"   onChange={e => user.name = e.target.value}  />
+                                                { submitted && !user.name &&
+                                                    <div className="alert alert-danger" role="alert">Full name is required.</div>
+                                                }
                                             </div>
-                                        }
-                                        <div className={'form-group' + (submitted && user.name ? 'has-error' : '')}>
-                                            <label htmlFor="name">Full Name</label>
-                                            <input type="text" className="form-control" name="name" value={user.name} onChange={ e => this.handleChange(e)} />
-                                            { submitted && !user.name &&
-                                                <div className="alert alert-danger" role="alert">Full name is required.</div>
-                                            }
+                                            <div className={'form-group' + (submitted && user.username ? 'has-error' : '')}>
+                                                <label htmlFor="username">Username</label>
+                                                <input type="text" className="form-control" name="username"  onChange={e => user.username = e.target.value} />
+                                                { submitted && !user.username &&
+                                                    <div className="alert alert-danger" role="alert">Username is required.</div>
+                                                }
+                                            </div>
+                                            <div className={'form-group' + (submitted && user.password ? 'has-error' : '')}>
+                                                <label htmlFor="passowrd">Password</label>
+                                                <input readOnly={user.id!==-1} type="password" className="form-control" name="password"  onChange={e => user.password = e.target.value} />
+                                            </div>   
+                                            <div className={'form-group' + (submitted && user.role ? 'has-error' : '')}>
+                                                <label htmlFor="role">User role</label>
+                                                <select className="form-control" name="role" required  onChange={ e => handleChange(e)}>
+                                                    <option value="">Choose</option>
+                                                    <option value="USER">User</option>
+                                                    <option value="ADMIN">Admin</option>
+                                                </select>
+                                                { submitted && !user.role &&
+                                                    <div className="alert alert-danger" role="alert">Role is required.</div>
+                                                }
+                                            </div>    
                                         </div>
-                                        <div className={'form-group' + (submitted && user.username ? 'has-error' : '')}>
-                                            <label htmlFor="username">Username</label>
-                                            <input type="text" className="form-control" name="username" value={user.username} onChange={ e => this.handleChange(e)} />
-                                            { submitted && !user.username &&
-                                                <div className="alert alert-danger" role="alert">Username is required.</div>
-                                            }
+                                        <div className="modal-footer">
+                                            <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={() => handleCloseClick()}>
+                                                Close
+                                            </button>
+                                            <button type="submit" className="btn btn-primary">
+                                                Save Changes
+                                            </button>
                                         </div>
-                                        <div className={'form-group' + (submitted && user.password ? 'has-error' : '')}>
-                                            <label htmlFor="passowrd">Password</label>
-                                            <input readOnly={user.id!==-1} type="password" className="form-control" name="password" value={user.password} onChange={ e => this.handleChange(e)} />
-                                            { submitted && !user.password &&
-                                                <div className="alert alert-danger" role="alert">Password is required.</div>
-                                            }
-                                        </div>   
-                                        <div className={'form-group' + (submitted && user.role ? 'has-error' : '')}>
-                                            <label htmlFor="role">User role</label>
-                                            <select className="form-control" name="role" required value={user.role} onChange={ e => this.handleChange(e)}>
-                                                <option value="">Choose</option>
-                                                <option value="USER">User</option>
-                                                <option value="ADMIN">Admin</option>
-                                            </select>
-                                            { submitted && !user.role &&
-                                                <div className="alert alert-danger" role="alert">Role is required.</div>
-                                            }
-                                        </div>    
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={() => this.handleCloseClick()}>
-                                            Close
-                                        </button>
-                                        <button type="submit" className="btn btn-primary">
-                                            Save Changes
-                                        </button>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
 
+                        </div>
                     </div>
                 }
             </div>
         )
-    }
+    
 
 
 }

@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 import { Route, Link, Routes, Navigate, useNavigate } from 'react-router-dom';
 import HomePage from './components/home/HomePage';
 import LoginPage from './components/login/LoginPage';
@@ -27,7 +27,7 @@ function App() {
       setIsAdmin(data && data.role === Role.ADMIN)
     })
 
-  });
+  },[currentUser]);
 
   const logout = () => {
     UserService.logout()

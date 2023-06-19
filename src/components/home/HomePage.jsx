@@ -1,128 +1,111 @@
-import React from "react";
+import { useEffect, useState  } from "react";
 import UserService from '../../services/user.service';
 import { User } from '../../models/user';
 import { Transaction } from '../../models/transaction';
+import { useNavigate } from "react-router-dom";
 
-class HomePage extends React.Component {
+const HomePage = () => {
 
-    constructor(props) {
-        super(props);
+    const navigate = useNavigate();
+    const [products, setProducts ] = useState([]);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [infoMessage, setInfoMessage ] = useState('');
+    const [ currentUser, setCurrentUser ] = useState(new User());
+    const [loading, setLoading] = useState(true);
 
-        this.state = {
-            products: [],
-            errorMessage: '',
-            infoMessage: '',
-            currentUser: new User(),
-        };
-    }
-
-    componentDidMount() {
+    useEffect(() => {
         UserService.currentUser.subscribe(data => {
-            this.setState({
-                currentUser: data
-            })
+            setCurrentUser(data);
         });
-
-        this.setState({
-            products: {loading:true}
-        });
-
+       
         UserService.findAllProducts()
             .then(products => {
-                this.setState({
-                    products: products.data
-                });
+                setLoading(false);
+                setProducts(products.data);
             }
         );
-    }
+    },[loading]);
+ 
 
-    purchaseProduct(product) {
-        if(!this.state.currentUser) {
-            this.setState({errorMessage: "You should sign in to purchase a product"})
+    const purchaseProduct = (product) => {
+        if(!currentUser) {
+            setErrorMessage("You should sign in to purchase a product");
             return;
         }
 
-        let transaction = new Transaction(this.state.currentUser, product);
+        let transaction = new Transaction(currentUser, product);
 
         UserService.purchaseProducts(transaction)
             .then( 
                 data => {
-                    this.setState({infoMessage : "Mission is completed"});
+                    setInfoMessage("Mission is completed");
                 }, 
                 error => {
-                    this.setState({errorMessage: "Unexpected error occured."});
+                    setErrorMessage("Unexpected error occured.");
                 }
             );
     }
 
-    detail(product) {
+    const detail = (product) => {
+        console.log(product);
         localStorage.setItem('currentProduct', JSON.stringify(product));
-        this.props.history.push('/detail/' + product.id);
+        navigate('/detail/'+ product.id);
     }
 
-    render() {
-        const { products, infoMessage, errorMessage } = this.state;
-        console.log(products)
-        return (
-            <div className="col-md-12">
-                {infoMessage &&
-                    <div className="alert alert-success">
-                        <strong>Successfull! </strong> {infoMessage}
-                        <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                }
-                {errorMessage &&
-                    <div className="alert alert-danger">
-                        <strong>Error! </strong> {errorMessage}
-                        <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                }
-                {products.loading && <em>Loading products...</em>}
-                {products.length &&
-                    <table className="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Price</th>
-                                    <th scope="col">Detail</th>
-                                    <th scope="col">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                   
+    return (
+        <div className="col-md-12">
+            {infoMessage &&
+                <div className="alert alert-success alert-dismissible">
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <strong>Successfull! </strong> {infoMessage}
+                </div>
+            }
+            {errorMessage &&
+                <div className="alert alert-danger alert-dismissible">
+                    <button type="button" className="close" data-dismiss="alert" aria-label="Close"></button>
+                    <strong>Error! </strong> {errorMessage}
+                </div>
+            }
+            {loading && <em>Loading products...</em>}
+            {products.length &&
+                <table className="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Detail</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                            products.map((product, index) => {
                                 
-                                products.map((product, index) => 
+                                return(
+                                <tr key={product.id}>
+                                    <th scope="row">{index + 1}</th>
+                                    <td>{product.name}</td>
+                                    <td>{'$ ' + product.price}</td>
+                                    <td>
+                                        <button className="btn btn-info" onClick={() => detail(product)}>
+                                            Detail
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button className="btn btn-success" onClick={() => purchaseProduct(product)}>
+                                            Purchase
+                                        </button>
+                                    </td>
+                                </tr>)}
+                            )
+                        }
+                        </tbody>
 
-                                    <tr key={product.id}>
-                                        <th scope="row">{index + 1}</th>
-                                        <td>{product.name}</td>
-                                        <td>{'$ ' + product.price}</td>
-                                        <td>
-                                            <button className="btn btn-info" onClick={() => this.detail(product)}>
-                                                Detail
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <button className="btn btn-success" onClick={() => this.purchaseProduct(product)}>
-                                                Purchase
-                                            </button>
-                                        </td>
-                                    </tr>
-                                )
-                            }
-                            </tbody>
-
-                    </table>
-                }
-            </div>
-        )
-    }
+                </table>
+            }
+        </div>
+    );
 }
 
 export default HomePage;

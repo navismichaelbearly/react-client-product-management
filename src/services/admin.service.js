@@ -1,7 +1,7 @@
 import axios from "axios";
 import UserService from './user.service';
 
-const API_URL = "htt://localhost:8080/api/admin/"
+const API_URL = "http://localhost:8080/api/admin/"
 
 var headers = {};
 class AdminService {

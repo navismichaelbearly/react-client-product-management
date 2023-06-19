@@ -12,12 +12,6 @@ const LoginPage = () => {
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    
-    const handleChange = e => {
-        console.log(e);
-        setUser(user);
-    }
-
     const handleLogin = e => {
         e.preventDefault();
 

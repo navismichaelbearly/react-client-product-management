@@ -1,23 +1,18 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 
-class DetailPage  extends React.Component{
-    constructor(props) {
-        super(props);
+const DetailPage = () => {
+    let { id } = useParams();
+    const product = JSON.parse(localStorage.getItem('currentProduct')) ;
+    
+    
+    return (
+        <div className="jumbotron">
+            <h1 className="display-4">Product: {product.name}</h1>
+            <h1 className="display-4">Product Id: {id}</h1>
+        </div>
+    );
 
-        this.state = {
-            id: this.props.match.params.id,
-            product: JSON.parse(localStorage.getItem('currentProduct'))
-        }
-    }
-
-    render() {
-        return (
-            <div className="jumbotron">
-                <h1 className="display-4">Product: {this.state.product.name}</h1>
-                <h1 className="display-4">Product Id: {this.state.id}</h1>
-            </div>
-        );
-    }
 }
 
 export default DetailPage;
