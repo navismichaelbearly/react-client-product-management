@@ -114,7 +114,7 @@ const AdminPage = () => {
                                     <h3 className='panel-title'>All Users</h3>
                                 </div>
                                 <div className='col col-xs-6 text-right'>
-                                    <button type='button' className='btn btn-primary' data-bs-target="#userModal"  onClick={() => createUserRequest()}>Create New User</button>
+                                    <button type='button' className='btn btn-primary'  onClick={() => createUserRequest()}>Create New User</button>
                                 </div>
                             </div>
                         </div>
@@ -141,7 +141,7 @@ const AdminPage = () => {
                                                 <button className='btn btn-warning' onClick={() => editUserRequest(user)}>
                                                     <FontAwesomeIcon icon={faPen}/>
                                                 </button>
-                                                <button className='btn btn-danger' onClick={() => deleteUserRequest(user)}>
+                                                <button className='btn btn-danger'  onClick={() => deleteUserRequest(user)}>
                                                     <FontAwesomeIcon icon={faTrashAlt}/>
                                                 </button>
                                             </td>

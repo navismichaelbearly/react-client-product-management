@@ -13,7 +13,7 @@ const DeleteModal = ({selectedUser,handleDeleteModalCloseClick, onDeleteChildUpd
 
     useEffect(() => {
         const modalEle = childDeleteModal.current;
-        const bsModal = new Modal(modalEle, {keyboard: false});
+        const bsModal = new Modal(modalEle, {backdrop: false, keyboard: false});
         setModal(bsModal);
         bsModal.show();
         handleDeleteModalCloseClick();
@@ -44,7 +44,7 @@ const DeleteModal = ({selectedUser,handleDeleteModalCloseClick, onDeleteChildUpd
         return (
             <div>
                 {user &&
-                        <div  ref={childDeleteModal} className="modal fade" id="deleteModal" tabIndex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                        <div  ref={childDeleteModal} className="modal fade"  tabIndex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                         <div className="modal-dialog" role="document" >
                             <div className="modal-content">
                                 <div className="modal-header">

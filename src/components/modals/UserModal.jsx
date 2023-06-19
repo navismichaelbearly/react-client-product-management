@@ -17,7 +17,7 @@ const UserModal = ({ handleModalCloseClick, onChildUpdate, selectedUser}) => {
 
     useEffect(() => {
         const modalEle = childUserModal.current;
-        const bsModal = new Modal(modalEle, { keyboard: false});
+        const bsModal = new Modal(modalEle, { backdrop: false,keyboard: false});
         setModal(bsModal)
         bsModal.show()
     },[])
@@ -86,13 +86,13 @@ const UserModal = ({ handleModalCloseClick, onChildUpdate, selectedUser}) => {
             <div>
                 {user &&
                     <div className="py-2">
-                        <div  ref={childUserModal} className="modal fade" id="userModal" tabIndex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+                        <div  ref={childUserModal} className="modal fade"  tabIndex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
                             <div className="modal-dialog" role="document">
                                 <div className="modal-content">
                                     <form name="form-user-update" onSubmit= { e => handleSubmit(e)}>
                                         <div className="modal-header">
                                             <h5 className="modal-title">User Details</h5>
-                                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={() => handleCloseClick()}></button>
                                         </div>
 
                                         <div className="modal-body">
