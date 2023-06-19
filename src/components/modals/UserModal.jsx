@@ -15,9 +15,10 @@ const UserModal = ({ handleModalCloseClick, onChildUpdate, selectedUser}) => {
     const [errorMessage, setErrorMessage]  = useState('');
 
     useEffect(() => {
-        const modal = new Modal(childUserModal.current, {keyboard: false})
-        setModal(modal)
-        modal.show()
+        const modalEle = childUserModal.current;
+        const bsModal = new Modal(modalEle, { backdrop: 'static',keyboard: false})
+        setModal(bsModal)
+        bsModal.show()
     },[])
 
    const handleCloseClick = () => {
